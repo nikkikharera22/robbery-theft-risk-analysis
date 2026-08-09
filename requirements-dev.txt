@@ -1,0 +1,10 @@
+# Additional packages needed only to REPRODUCE TRAINING (run train.py / the notebook).
+# The deployed Streamlit app only needs requirements.txt.
+-r requirements.txt
+matplotlib
+seaborn
+jupyter
+nbformat
+nbclient
+ipykernel
+graphviz
