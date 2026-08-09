@@ -1,0 +1,105 @@
+{
+  "raw_records": 265698,
+  "filtered_records": 12635,
+  "class_counts": {
+    "ROBBERY": 9685,
+    "THEFT": 2950
+  },
+  "n_location_types": 81,
+  "label_encoding": {
+    "ROBBERY": 0,
+    "THEFT": 1
+  },
+  "final_records": 12635,
+  "split": {
+    "n_train": 10108,
+    "n_test": 2527
+  },
+  "baseline_lr_accuracy": 0.7202216066481995,
+  "tuning": {
+    "LogisticRegression": {
+      "best_params": {
+        "clf__C": 10
+      },
+      "best_cv_f1_weighted": 0.7302462924427451
+    },
+    "DecisionTree": {
+      "best_params": {
+        "clf__max_depth": 10,
+        "clf__min_samples_leaf": 1
+      },
+      "best_cv_f1_weighted": 0.8071686109657907
+    },
+    "RandomForest": {
+      "best_params": {
+        "clf__max_depth": 15,
+        "clf__n_estimators": 200
+      },
+      "best_cv_f1_weighted": 0.857344921622774
+    },
+    "GradientBoosting": {
+      "best_params": {
+        "clf__max_depth": 4,
+        "clf__n_estimators": 200
+      },
+      "best_cv_f1_weighted": 0.8623281963570063
+    },
+    "KNN": {
+      "best_params": {
+        "clf__n_neighbors": 25,
+        "clf__weights": "distance"
+      },
+      "best_cv_f1_weighted": 0.8333350280643657
+    }
+  },
+  "final_model_selected": "GradientBoosting",
+  "final_model_params": {
+    "clf__max_depth": 4,
+    "clf__n_estimators": 200
+  },
+  "test_metrics": {
+    "accuracy": 0.8690146418678275,
+    "precision_weighted": 0.8638144767178121,
+    "recall_weighted": 0.8690146418678275,
+    "f1_weighted": 0.8613975203519251,
+    "roc_auc": 0.868176806699159
+  },
+  "classification_report": {
+    "ROBBERY": {
+      "precision": 0.8831106870229007,
+      "recall": 0.9556014455343315,
+      "f1-score": 0.91792710141334,
+      "support": 1937.0
+    },
+    "THEFT": {
+      "precision": 0.8004640371229699,
+      "recall": 0.5847457627118644,
+      "f1-score": 0.6758080313418218,
+      "support": 590.0
+    },
+    "accuracy": 0.8690146418678275,
+    "macro avg": {
+      "precision": 0.8417873620729353,
+      "recall": 0.770173604123098,
+      "f1-score": 0.7968675663775808,
+      "support": 2527.0
+    },
+    "weighted avg": {
+      "precision": 0.8638144767178121,
+      "recall": 0.8690146418678275,
+      "f1-score": 0.8613975203519251,
+      "support": 2527.0
+    }
+  },
+  "feature_importance": {
+    "DayOfWeek": 0.007574012406330821,
+    "Month": 0.01478264041359077,
+    "Community Area": 0.016737783201203706,
+    "Hour": 0.07270496119851862,
+    "District": 0.08263072402659152,
+    "Longitude": 0.12127412815816405,
+    "Latitude": 0.12275876371582911,
+    "Ward": 0.2468629650580343,
+    "LocDesc_enc": 0.31467402182173715
+  }
+}

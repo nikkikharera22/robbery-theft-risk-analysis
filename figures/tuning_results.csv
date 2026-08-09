@@ -1,0 +1,6 @@
+model,cv_f1_weighted
+GradientBoosting,0.8623281963570063
+RandomForest,0.857344921622774
+KNN,0.8333350280643657
+DecisionTree,0.8071686109657907
+LogisticRegression,0.7302462924427451
