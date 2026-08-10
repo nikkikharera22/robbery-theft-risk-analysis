@@ -16,7 +16,7 @@ from sklearn.neighbors import BallTree
 
 st.set_page_config(page_title="Robbery & Theft Risk Analysis", page_icon="🛡️", layout="wide")
 
-EARTH_RADIUS_M = 6_371_000.0  
+EARTH_RADIUS_M = 6_371_000.0  # mean Earth radius in metres, for haversine distance
 
 MODEL_PATH = "model/crime_pipeline.joblib"
 LABEL_ENCODER_PATH = "model/label_encoder.joblib"
@@ -217,16 +217,24 @@ with tab2:
             dow_idx = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(dow)
             loc_enc = le_loc.transform([loc_desc])[0]
 
-            # Approximate District/Ward/Community Area from the nearest real
-            # incident record, since the app doesn't ask the user for these
-            # directly (they're administrative boundaries, not something a
-            # member of the public would know off-hand).
-            nearest_idx = query_radius_m(tree, lat, lon, 2000)
-            if len(nearest_idx) == 0:
-                nearest_idx = query_radius_m(tree, lat, lon, 10000)
+            # Look up District/Ward/Community Area from the SINGLE nearest real
+            # incident record (true nearest-neighbour, not a wide-radius mode -
+            # verified that a 2km radius here can span 7 different Wards and 3
+            # Districts, which would make a mode-based lookup genuinely
+            # imprecise for administrative boundaries this granular). These are
+            # then used as the model input - NOT left as 0, which the model
+            # never saw during training for any of these three features (real
+            # values: District 1-25, Ward 1-50, Community Area 1-77) and which
+            # corrupted every prediction this app made before this fix.
+            point_rad = np.radians([[lat, lon]])
+            _, nearest_idx = tree.query(point_rad, k=1)
+            nearest_record = lookup_df.iloc[nearest_idx[0][0]]
+            admin_district = nearest_record["District"]
+            admin_ward = nearest_record["Ward"]
+            admin_community = nearest_record["Community Area"]
 
             # ---------------- ML PREDICTION ----------------
-            X_new = pd.DataFrame([[lat, lon, hour, month, dow_idx, loc_enc, 0, 0, 0]],
+            X_new = pd.DataFrame([[lat, lon, hour, month, dow_idx, loc_enc, admin_district, admin_ward, admin_community]],
                                   columns=["Latitude", "Longitude", "Hour", "Month", "DayOfWeek",
                                            "LocDesc_enc", "District", "Ward", "Community Area"])
             pred = pipe.predict(X_new)[0]
@@ -263,7 +271,12 @@ with tab2:
                 f"Model confidence: {confidence:.1%}  "
                 f"(Robbery: {proba_map.get('ROBBERY', 0):.1%} | Theft: {proba_map.get('THEFT', 0):.1%})"
             )
-            st.caption(f"Based on: this location, {hour}:00, {dow}, {loc_desc.title()}, month {month}.")
+            st.caption(
+                f"Based on: this location, {hour}:00, {dow}, {loc_desc.title()}, month {month}, "
+                f"District {admin_district} / Ward {admin_ward} / Community Area {admin_community} "
+                f"(administrative area approximated from the nearest recorded incident, since these "
+                f"boundaries aren't something a user would typically know or enter directly)."
+            )
 
             st.markdown("#### 📍 Historical Evidence (all-time, 2018 — does not use the time you selected above)")
             c1, c2 = st.columns(2)
